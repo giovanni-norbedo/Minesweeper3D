@@ -49,6 +49,7 @@ class Cube(Entity):
                     cube = cubes_dict.get((i, j, k))
                     if cube and cube.is_mine:
                         count += 1
+        
         if count > 0:
             self.text_entity = Text(
                 text=str(count),
@@ -98,13 +99,12 @@ class Cube(Entity):
                         print(cube.text_entity.text)
                     
                     if self.is_flagged:  
-                        if count > 0:  
-                                cube.text_entity.text = str(count - 1)
+                        cube.text_entity.text = str(count - 1)
                         
                     else:  
                         if count < cube.initial_value:
                             cube.text_entity.text = str(count + 1)
-                        
+        
         else:
             self.reveal()
 
@@ -165,6 +165,7 @@ class Game:
                     cubes_dict[(x,y,z)].is_mine = True
                     break 
 
+
     def flood_fill(self, x, y, z):
         stack = [(x, y, z)]
         visited = set()
@@ -216,6 +217,7 @@ class Game:
             if cube:
                 cube.disable()
 
+
     def get_revealed_cubes(self):
         self.revealed_cubes.clear()
         for cube in cubes_dict.values():
@@ -223,12 +225,14 @@ class Game:
                 self.revealed_cubes.append((cube.id, cube.text_entity.text))
         return self.revealed_cubes
 
+
     def get_not_revealed_cubes(self):
         self.not_revealed_cubes.clear()
         for cube in cubes_dict.values():
             if not cube.is_revealed:
                 self.not_revealed_cubes.append((cube.id))
         return self.not_revealed_cubes
+
 
     def game_over(self):
         self.ui.game_over()

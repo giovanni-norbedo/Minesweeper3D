@@ -28,4 +28,4 @@ LINE_THICKNESS = 0.05
 
 # Variabili iniziali (possono essere modificate dal menu)
 dim = 5
-difficulty = 0.10
+difficulty = 0.05

@@ -27,14 +27,14 @@ class UI:
         self.selected_difficulty = difficulty
 
         self.create_menu()
-        
-        
+    
+    
     def update(self):
         if not self.game_panel.enabled:
             return  # non fare nulla se il gioco è fermo
 
         # Movimento WASD
-        if held_keys['w']:          
+        if held_keys['w']:
             camera.position += camera.up * time.dt * 50
             camera.position += camera.forward * zoom_speed * .12
         
@@ -164,10 +164,10 @@ class UI:
         dimension_button1.on_click = lambda: self.set_dimension(7, dimension_button1)
         dimension_button2.on_click = lambda: self.set_dimension(9, dimension_button2)
 
-        easy_button.on_click = lambda: self.set_difficulty(0.10, easy_button)
-        medium_button.on_click = lambda: self.set_difficulty(0.15, medium_button)
-        hard_button.on_click = lambda: self.set_difficulty(0.20, hard_button)
-        extreme_button.on_click = lambda: self.set_difficulty(0.30, extreme_button)
+        easy_button.on_click = lambda: self.set_difficulty(0.05, easy_button)
+        medium_button.on_click = lambda: self.set_difficulty(0.10, medium_button)
+        hard_button.on_click = lambda: self.set_difficulty(0.15, hard_button)
+        extreme_button.on_click = lambda: self.set_difficulty(0.20, extreme_button)
 
         start_button.on_click = self.start_game_handler
         exit_button.on_click = application.quit
@@ -188,6 +188,7 @@ class UI:
         self.flag_text.visible = False
         
         self.game_over_text.visible = True
+        
         
         restart_button = Button(
             text = 'Restart game',

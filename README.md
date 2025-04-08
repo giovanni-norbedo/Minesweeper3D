@@ -37,15 +37,11 @@ L'obiettivo futuro del progetto è integrare il theorem prover Z3 per creare un 
 
 ## TODO
 
-* [ ] Impostazione del zoom iniziale corretto.
-* [ ] Gestione l'avvicinamento delle mine.
 * [ ] Controllo del numero di mine adiacenti.
-* [ ] Gestione delle bandiere.
 * [ ] Eliminazione del numero zero quando non ci sono mine adiacenti.
 * [ ] Gestione della vittoria.
 * [ ] Integrazione di Z3 per la risoluzione automatica del gioco.
 * [ ] Aspetto grafico menù e interfaccia utente.
-* [ ] Ottimizzazione del codice e refactoring.
 * [ ] Aggiunta di suoni e animazioni.
 * [ ] Test e debug.
 * [ ] Documentazione e commenti.
