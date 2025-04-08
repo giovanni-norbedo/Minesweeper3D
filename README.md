@@ -63,4 +63,4 @@ L'obiettivo futuro del progetto è integrare il theorem prover Z3 per creare un 
 - Installa le dipendenze:
 - `uv sync`
 - Esegui il gioco:
-- `uv run main.py`
+- `uv run python main.py`
