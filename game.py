@@ -24,13 +24,15 @@ class Cube(Entity):
         self.game = game
         self.is_flagged = False
         self.is_revealed = False
+        self.count = 0
         self.text_entity = Text(
-            text='0',
+            text=str(self.count),
             position=self.position,
             parent=self,
             scale=0.1,
             visible=False
         )
+        
 
     
     def get_neighbors(self):
@@ -49,30 +51,33 @@ class Cube(Entity):
     
     def on_click(self):
         if DEBUG:
-            print(f'Clicked on {self.id}')
+            print(f'Clicked on {self.id}, with count {self.count}')
         
         self.is_won()
-        
+
         if config.flag_mode:
             self.is_flagged = not self.is_flagged
             self.color = color.red if self.is_flagged else \
                 lerp(color.black, colors[rand_color], random.uniform(.3 , .9))
             
-            for cube in self.get_neighbors():
-                
-                if self.is_flagged:  
-                    cube.text_entity.text = str(self.count - 1)
-                    if self.count == 1:
-                        cube.text_entity.visible = False
+            for neighbor in self.get_neighbors():
+                if self.is_flagged:
+                    neighbor.count -= 1
+                    if neighbor.count == 0:
+                        neighbor.text_entity.visible = False
+                        neighbor.update_count_display()
                     else:
-                        cube.text_entity.visible = True
-                
+                        neighbor.text_entity.visible = True
+                        neighbor.update_count_display()
                 else:
-                    cube.text_entity.visible = True
-                    if self.count < cube.count:
-                        cube.text_entity.text = str(self.count + 1)
+                    neighbor.count += 1
+                    if neighbor.count == 0:
+                        neighbor.text_entity.visible = False
+                        neighbor.update_count_display()
                     else:
-                        cube.text_entity.visible = True
+                        neighbor.text_entity.visible = True
+                        neighbor.update_count_display()
+                
     
         else:
             if self.is_mine:
@@ -100,6 +105,8 @@ class Cube(Entity):
             
             self.disable()
 
+    def update_count_display(self):
+            self.text_entity.text = str(self.count)
 
     def is_won(self):
         if DEBUG:
@@ -189,7 +196,7 @@ class Game:
                 cube.count = count
                 
                 if DEBUG:
-                    print(f'Cube {cube.id} has {count} mines around it')
+                    print(f'Cube {cube.id} has {cube.count} mines around it')
 
 
     def flood_fill(self, x, y, z):
