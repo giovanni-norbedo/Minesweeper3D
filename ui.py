@@ -212,7 +212,7 @@ class UI:
             print("Restarting game...")
         
         destroy(self.game.pivot)
-        cubes_dict = {}
+        config.cubes_dict = {}
 
         self.game_over_panel.enabled = False
         self.menu_panel.enabled = True

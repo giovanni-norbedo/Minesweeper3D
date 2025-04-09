@@ -46,7 +46,7 @@ class Cube(Entity):
                 for k in range(z - 1, z + 2):
                     if (i, j, k) == (x, y, z):
                         continue
-                    cube = cubes_dict.get((i, j, k))
+                    cube = config.cubes_dict.get((i, j, k))
                     if cube and cube.is_mine:
                         count += 1
         
@@ -81,7 +81,7 @@ class Cube(Entity):
                 for k in range(z - 1, z + 2):
                     if (i, j, k) == (x, y, z):
                         continue
-                    cube = cubes_dict.get((i, j, k))
+                    cube = config.cubes_dict.get((i, j, k))
                     if cube:
                         neighbors.append(cube)
         return neighbors
@@ -123,8 +123,7 @@ class Game:
         if DEBUG:
             print(f'Starting game with dimension {dim} and difficulty {difficulty}')
         
-        global cubes_dict
-        cubes_dict = {}
+        config.cubes_dict = {}
         
         self.dim = dim
         self.mines = difficulty * dim * dim * dim
@@ -153,20 +152,23 @@ class Game:
                         game=self,
                     )
                     cube.parent = self.pivot
-                    cubes_dict[(x, y, z)] = cube
+                    config.cubes_dict[(x, y, z)] = cube
                     
         if DEBUG:
-            print(f'Created {len(cubes_dict)} cubes')
+            print(f'Created {len(config.cubes_dict)} cubes')
 
         for _ in range(int(self.mines)):
             while True:
                 x, y, z = randrange(dim), randrange(dim), randrange(dim)
-                if not cubes_dict[(x,y,z)].is_mine:
-                    cubes_dict[(x,y,z)].is_mine = True
+                if not config.cubes_dict[(x,y,z)].is_mine:
+                    config.cubes_dict[(x,y,z)].is_mine = True
                     break 
 
 
     def flood_fill(self, x, y, z):
+        if DEBUG:
+            print(f'Flood fill from {x}, {y}, {z}')
+        
         stack = [(x, y, z)]
         visited = set()
         
@@ -177,11 +179,8 @@ class Game:
                 continue
             
             visited.add((cx, cy, cz))
-            cube = cubes_dict.get((cx, cy, cz))
+            cube = config.cubes_dict.get((cx, cy, cz))
             cube.is_revealed = True
-            
-            if DEBUG:
-                print(f'Popped {cube.id}, Revealed {cube.is_revealed}')
             
             if not cube or cube.is_mine:
                 continue
@@ -193,9 +192,10 @@ class Game:
                     for k in range(cz - 1, cz + 2):
                         if (i, j, k) == (cx, cy, cz):
                             continue
-                        neighbor = cubes_dict.get((i, j, k))
+                        neighbor = config.cubes_dict.get((i, j, k))
                         if neighbor and neighbor.is_mine:
                             count += 1
+            
             if count > 0:
                 cube.text_entity = Text(
                     text=str(count),
@@ -212,15 +212,21 @@ class Game:
                             if dx == dy == dz == 0:
                                 continue
                             nx, ny, nz = cx + dx, cy + dy, cz + dz
-                            if (nx, ny, nz) not in visited and (0 <= nx < dim and 0 <= ny < dim and 0 <= nz < dim):
+                            if (nx, ny, nz) not in visited and (
+                                    0 <= nx < self.dim and 
+                                    0 <= ny < self.dim and 
+                                    0 <= nz < self.dim
+                                ):
                                 stack.append((nx, ny, nz))
             if cube:
+                if DEBUG:
+                    print(f'Revealed {cube.id}')
                 cube.disable()
 
 
     def get_revealed_cubes(self):
         self.revealed_cubes.clear()
-        for cube in cubes_dict.values():
+        for cube in config.cubes_dict.values():
             if cube.is_revealed:
                 self.revealed_cubes.append((cube.id, cube.text_entity.text))
         return self.revealed_cubes
@@ -228,7 +234,7 @@ class Game:
 
     def get_not_revealed_cubes(self):
         self.not_revealed_cubes.clear()
-        for cube in cubes_dict.values():
+        for cube in config.cubes_dict.values():
             if not cube.is_revealed:
                 self.not_revealed_cubes.append((cube.id))
         return self.not_revealed_cubes
