@@ -50,6 +50,9 @@ class Cube(Entity):
     
     
     def on_click(self):
+        if self.is_flagged:
+            return
+
         if DEBUG:
             print(f'Clicked on {self.id}, with count {self.count}')
         
