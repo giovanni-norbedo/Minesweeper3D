@@ -207,6 +207,31 @@ class UI:
             btn.color = color.azure
 
 
+    def game_won(self):
+        self.game_panel.enabled = False
+        self.game_over_panel.enabled = True
+        self.flag_text.visible = False
+        
+        self.game_over_text.text = 'You won!'
+        self.game_over_text.visible = True
+        
+        restart_button = Button(
+            text = 'Restart game',
+            color = color.green,
+            parent = self.game_over_panel,
+            scale = .2,
+            x = 0,
+            y = -0.2,
+            on_click = self.restart_game
+        )
+
+        for btn in self.dimension_buttons:
+            btn.color = color.violet
+
+        for btn in self.difficulty_buttons:
+            btn.color = color.azure
+    
+    
     def restart_game(self):
         if DEBUG:
             print("Restarting game...")

@@ -27,5 +27,5 @@ LINE_LENGTH = 1000
 LINE_THICKNESS = 0.05
 
 # Variabili iniziali (possono essere modificate dal menu)
-dim = 4
+dim = 5
 difficulty = 0.05

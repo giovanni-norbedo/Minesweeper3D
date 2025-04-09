@@ -25,53 +25,13 @@ class Cube(Entity):
         self.is_flagged = False
         self.is_revealed = False
         self.text_entity = Text(
-            text='',
+            text='0',
             position=self.position,
             parent=self,
             scale=0.1,
             visible=False
         )
 
-
-    def reveal(self):
-        if self.is_flagged:
-            return
-        
-        x, y, z = map(int, self.id.split('_'))
-        count = 0
-        self.is_revealed = True
-        
-        for i in range(x - 1, x + 2):
-            for j in range(y - 1, y + 2):
-                for k in range(z - 1, z + 2):
-                    if (i, j, k) == (x, y, z):
-                        continue
-                    cube = config.cubes_dict.get((i, j, k))
-                    if cube and cube.is_mine:
-                        count += 1
-        
-        if count > 0:
-            self.text_entity = Text(
-                text=str(count),
-                position=self.position,
-                scale=side * 20,
-                parent=self.game.pivot,
-                billboard=True,
-                color=color.white
-            )
-            self.initial_value = count
-        else:
-            self.game.flood_fill(x, y, z)
-        
-        if DEBUG:
-            print(f'Clicked {self.id}, Mines around: {count}, Is mine: {self.is_mine}, Revealed {self.is_revealed}')
-        
-        self.disable()
-
-        if self.is_mine:
-            print('Game Over!')
-            self.game.game_over()
-    
     
     def get_neighbors(self):
         x, y, z = map(int, self.id.split('_'))
@@ -88,26 +48,70 @@ class Cube(Entity):
     
     
     def on_click(self):
+        if DEBUG:
+            print(f'Clicked on {self.id}')
+        
+        self.is_won()
+        
         if config.flag_mode:
             self.is_flagged = not self.is_flagged
-            self.color = color.red if self.is_flagged else color.black
+            self.color = color.red if self.is_flagged else \
+                lerp(color.black, colors[rand_color], random.uniform(.3 , .9))
             
             for cube in self.get_neighbors():
-                if cube.is_revealed and hasattr(cube, 'text_entity'):
-                    count = int(cube.text_entity.text)
-                    if DEBUG:
-                        print(cube.text_entity.text)
-                    
-                    if self.is_flagged:  
-                        cube.text_entity.text = str(count - 1)
-                        
-                    else:  
-                        if count < cube.initial_value:
-                            cube.text_entity.text = str(count + 1)
-        
+                
+                if self.is_flagged:  
+                    cube.text_entity.text = str(self.count - 1)
+                    if self.count == 1:
+                        cube.text_entity.visible = False
+                    else:
+                        cube.text_entity.visible = True
+                
+                else:
+                    cube.text_entity.visible = True
+                    if self.count < cube.count:
+                        cube.text_entity.text = str(self.count + 1)
+                    else:
+                        cube.text_entity.visible = True
+    
         else:
-            self.reveal()
+            if self.is_mine:
+                print('Game Over!')
+                self.game.game_over()
+            
+            if self.count == 0:
+                self.game.flood_fill(
+                    int(self.id.split('_')[0]),
+                    int(self.id.split('_')[1]),
+                    int(self.id.split('_')[2])
+                )
+            else:
+                self.text_entity = Text(
+                    text=str(self.count),
+                    position=self.position,
+                    parent=self.game.pivot,
+                    scale=side * 20,
+                    billboard=True,
+                    color=color.white,
+                )
+            
+            if DEBUG:
+                print(f'Clicked {self.id}, Mines around: {self.count}, Is mine: {self.is_mine}, Revealed {self.is_revealed}')
+            
+            self.disable()
 
+
+    def is_won(self):
+        if DEBUG:
+            print('Checking win condition')
+            
+        not_revealed_cubes = self.game.get_not_revealed_cubes()
+        
+        if len(not_revealed_cubes) - 1 == self.game.mines:
+            if DEBUG:
+                print('You won!')
+
+            self.game.ui.game_won()
 
 
 class Game:
@@ -126,7 +130,7 @@ class Game:
         config.cubes_dict = {}
         
         self.dim = dim
-        self.mines = difficulty * dim * dim * dim
+        self.mines = int(difficulty * dim * dim * dim)
         self.center = (dim - 1) * side / 2
 
         self.pivot = Entity(
@@ -157,12 +161,35 @@ class Game:
         if DEBUG:
             print(f'Created {len(config.cubes_dict)} cubes')
 
-        for _ in range(int(self.mines)):
+        # Place mines
+        for _ in range(self.mines):
             while True:
                 x, y, z = randrange(dim), randrange(dim), randrange(dim)
                 if not config.cubes_dict[(x,y,z)].is_mine:
                     config.cubes_dict[(x,y,z)].is_mine = True
-                    break 
+                    break
+        
+        # Count mines around each cube
+        for cube in config.cubes_dict.values():
+            if not cube.is_mine:
+                count = 0
+                for i in range(-1, 2):
+                    for j in range(-1, 2):
+                        for k in range(-1, 2):
+                            if (i, j, k) == (0, 0, 0):
+                                continue
+                            neighbor = config.cubes_dict.get((int(cube.id.split('_')[0]) + i,
+                                                                int(cube.id.split('_')[1]) + j,
+                                                                int(cube.id.split('_')[2]) + k)
+                            )
+                            if neighbor and neighbor.is_mine:
+                                count += 1
+                
+                cube.text_entity.text = str(count)
+                cube.count = count
+                
+                if DEBUG:
+                    print(f'Cube {cube.id} has {count} mines around it')
 
 
     def flood_fill(self, x, y, z):
@@ -204,7 +231,7 @@ class Game:
                     parent=self.pivot,
                     billboard=True
                 )
-                cube.initial_value = count
+                cube.count = count
             else:
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
@@ -219,8 +246,6 @@ class Game:
                                 ):
                                 stack.append((nx, ny, nz))
             if cube:
-                if DEBUG:
-                    print(f'Revealed {cube.id}')
                 cube.disable()
 
 

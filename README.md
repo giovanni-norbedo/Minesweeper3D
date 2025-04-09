@@ -39,7 +39,6 @@ L'obiettivo futuro del progetto è integrare il theorem prover Z3 per creare un 
 
 * [ ] Controllo del numero di mine adiacenti.
 * [ ] Eliminazione del numero zero quando non ci sono mine adiacenti.
-* [ ] Gestione della vittoria.
 * [ ] Integrazione di Z3 per la risoluzione automatica del gioco.
 * [ ] Aspetto grafico menù e interfaccia utente.
 * [ ] Aggiunta di suoni e animazioni.
