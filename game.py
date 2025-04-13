@@ -26,11 +26,12 @@ class Cube(Entity):
         self.is_revealed = False
         self.count = 0
         self.text_entity = Text(
-            text=str(self.count),
+            text='',
             position=self.position,
-            parent=self,
-            scale=0.1,
-            visible=False
+            scale=20 * side,
+            parent=self.game.pivot,
+            color=color.white,
+            visible= False
         )
         
 
@@ -50,15 +51,12 @@ class Cube(Entity):
     
     
     def on_click(self):
-        if self.is_flagged:
-            return
-
+        
         if DEBUG:
             print(f'Clicked on {self.id}, with count {self.count}')
-        
-        self.is_won()
 
         if config.flag_mode:
+            print('Is mine:', self.is_mine)
             self.is_flagged = not self.is_flagged
             self.color = color.red if self.is_flagged else \
                 lerp(color.black, colors[rand_color], random.uniform(.3 , .9))
@@ -68,25 +66,27 @@ class Cube(Entity):
                     neighbor.count -= 1
                     if neighbor.count == 0:
                         neighbor.text_entity.visible = False
-                        neighbor.update_count_display()
                     else:
                         neighbor.text_entity.visible = True
-                        neighbor.update_count_display()
+                    neighbor.update_count_display()
+                        
                 else:
                     neighbor.count += 1
                     if neighbor.count == 0:
                         neighbor.text_entity.visible = False
-                        neighbor.update_count_display()
                     else:
                         neighbor.text_entity.visible = True
-                        neighbor.update_count_display()
-                
+                    neighbor.update_count_display() 
     
         else:
+            if self.is_flagged:
+                return
+            
             if self.is_mine:
                 print('Game Over!')
                 self.game.game_over()
-            
+
+                        
             if self.count == 0:
                 self.game.flood_fill(
                     int(self.id.split('_')[0]),
@@ -94,6 +94,7 @@ class Cube(Entity):
                     int(self.id.split('_')[2])
                 )
             else:
+                destroy(self.text_entity)
                 self.text_entity = Text(
                     text=str(self.count),
                     position=self.position,
@@ -104,11 +105,15 @@ class Cube(Entity):
                 )
             
             if DEBUG:
-                print(f'Clicked {self.id}, Mines around: {self.count}, Is mine: {self.is_mine}, Revealed {self.is_revealed}')
+                print(f'Clicked {self.id}, Mines around: {self.count}, Is mine: {self.is_mine}, Revealed {self.is_revealed}, count: {self.count}')
             
+            self.update_count_display()
             self.disable()
+            self.is_won()
+
 
     def update_count_display(self):
+            print(f'Updating count display for {self.id}, count: {self.count}')
             self.text_entity.text = str(self.count)
 
     def is_won(self):
@@ -117,7 +122,7 @@ class Cube(Entity):
             
         not_revealed_cubes = self.game.get_not_revealed_cubes()
         
-        if len(not_revealed_cubes) - 1 == self.game.mines:
+        if len(not_revealed_cubes) == self.game.mines:
             if DEBUG:
                 print('You won!')
 
@@ -181,25 +186,27 @@ class Game:
         
         # Count mines around each cube
         for cube in config.cubes_dict.values():
-            if not cube.is_mine:
-                count = 0
-                for i in range(-1, 2):
-                    for j in range(-1, 2):
-                        for k in range(-1, 2):
-                            if (i, j, k) == (0, 0, 0):
-                                continue
-                            neighbor = config.cubes_dict.get((int(cube.id.split('_')[0]) + i,
-                                                                int(cube.id.split('_')[1]) + j,
-                                                                int(cube.id.split('_')[2]) + k)
-                            )
-                            if neighbor and neighbor.is_mine:
-                                count += 1
-                
-                cube.text_entity.text = str(count)
-                cube.count = count
-                
-                if DEBUG:
-                    print(f'Cube {cube.id} has {cube.count} mines around it')
+            
+            count = 0
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    for k in range(-1, 2):
+                        if (i, j, k) == (0, 0, 0):
+                            continue
+                        neighbor = config.cubes_dict.get((int(cube.id.split('_')[0]) + i,
+                                                            int(cube.id.split('_')[1]) + j,
+                                                            int(cube.id.split('_')[2]) + k)
+                        )
+                        if neighbor and neighbor.is_mine:
+                            count += 1
+            
+            cube.count = count
+            cube.text_entity.text = str(count)
+            
+            
+            
+            if DEBUG:
+                print(f'Cube {cube.id} has {cube.count} mines around it')
 
 
     def flood_fill(self, x, y, z):
@@ -217,31 +224,24 @@ class Game:
             
             visited.add((cx, cy, cz))
             cube = config.cubes_dict.get((cx, cy, cz))
+            
+            
+            if not cube or cube.is_mine or cube.is_revealed:
+                continue
+
             cube.is_revealed = True
             
-            if not cube or cube.is_mine:
-                continue
-            
-            count = 0
-            
-            for i in range(cx - 1, cx + 2):
-                for j in range(cy - 1, cy + 2):
-                    for k in range(cz - 1, cz + 2):
-                        if (i, j, k) == (cx, cy, cz):
-                            continue
-                        neighbor = config.cubes_dict.get((i, j, k))
-                        if neighbor and neighbor.is_mine:
-                            count += 1
+            count = cube.count
             
             if count > 0:
+                destroy(cube.text_entity)
                 cube.text_entity = Text(
                     text=str(count),
                     position=cube.position,
-                    scale=side * 20,
+                    scale=20 * side,
                     parent=self.pivot,
                     billboard=True
                 )
-                cube.count = count
             else:
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
