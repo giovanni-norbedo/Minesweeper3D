@@ -1,6 +1,7 @@
 from ursina import *
 from config import *
 import config
+from sat import indizio
 from game import Game
 
 
@@ -22,6 +23,17 @@ class UI:
 
         self.flag_text = Text(text="Flag mode OFF", position=(-0.7, 0.45), scale=2, color=color.white, parent=camera.ui)
         self.flag_text.visible = False
+
+        self.hint_button = Button(
+            text = 'Hint',
+            color = color.orange,
+            parent = camera.ui,
+            scale = .1,
+            x = -0.6,
+            y = -0.4
+        )
+
+        self.hint_button.visible = False
 
         self.selected_dimension = dim
         self.selected_difficulty = difficulty
@@ -177,8 +189,10 @@ class UI:
         self.menu_panel.enabled = False
         self.game_panel.enabled = True
         self.flag_text.visible = True
+        self.hint_button.visible = True
         
         self.game = Game(self)
+        self.hint_button.on_click = lambda: indizio(self.game)
         self.game.start_game(self.selected_dimension, self.selected_difficulty)
 
 
@@ -190,7 +204,7 @@ class UI:
         self.game_over_text.visible = True
         
         
-        restart_button = Button(
+        self.restart_button = Button(
             text = 'Restart game',
             color = color.red,
             parent = self.game_over_panel,
@@ -215,7 +229,7 @@ class UI:
         self.game_over_text.text = 'You won!'
         self.game_over_text.visible = True
         
-        restart_button = Button(
+        self.restart_button = Button(
             text = 'Restart game',
             color = color.green,
             parent = self.game_over_panel,
