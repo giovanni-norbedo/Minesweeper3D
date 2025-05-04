@@ -121,7 +121,8 @@ class Cube(Entity):
             print('Checking win condition')
             
         not_revealed_cubes = self.game.get_not_revealed_cubes()
-        
+        if DEBUG:
+            print(f'Not revealed cubes: {not_revealed_cubes}')
         if len(not_revealed_cubes) == self.game.mines:
             if DEBUG:
                 print('You won!')
@@ -257,6 +258,8 @@ class Game:
                                 stack.append((nx, ny, nz))
             if cube:
                 cube.disable()
+        
+        cube.is_won()
 
 
     def get_revealed_cubes(self):
