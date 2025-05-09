@@ -1,9 +1,11 @@
 from ursina import *
 from game import Game
 from ui import UI
-
+from ursina.shaders import lit_with_shadows_shader
 
 app = Ursina()
+
+Entity.default_shader = lit_with_shadows_shader
 
 # Impostazioni finestra
 window.title = 'Minesweeper3D'
@@ -22,5 +24,8 @@ def update():
 
 def input(key):
     ui.input(key)
+    
+ambient_light = AmbientLight()
+ambient_light.color = color.rgb(100, 100, 100)
 
 app.run()

@@ -33,7 +33,6 @@ class Cube(Entity):
             color=color.white,
             visible= False
         )
-        
 
     
     def get_neighbors(self):
@@ -56,10 +55,14 @@ class Cube(Entity):
             print(f'Clicked on {self.id}, with count {self.count}')
 
         if config.flag_mode:
-            print('Is mine:', self.is_mine)
+            if DEBUG:
+                print('Is mine:', self.is_mine)
+
             self.is_flagged = not self.is_flagged
             self.color = color.red if self.is_flagged else \
                 lerp(color.black, colors[rand_color], random.uniform(.3 , .9))
+            
+            self.is_won() # qua non funziona
             
             for neighbor in self.get_neighbors():
                 if self.is_flagged:
@@ -76,14 +79,15 @@ class Cube(Entity):
                         neighbor.text_entity.visible = False
                     else:
                         neighbor.text_entity.visible = True
-                    neighbor.update_count_display() 
+                    neighbor.update_count_display()
     
         else:
             if self.is_flagged:
                 return
             
             if self.is_mine:
-                print('Game Over!')
+                if DEBUG:
+                    print('Game Over!')
                 self.game.game_over()
 
                         
@@ -113,8 +117,7 @@ class Cube(Entity):
 
 
     def update_count_display(self):
-            print(f'Updating count display for {self.id}, count: {self.count}')
-            self.text_entity.text = str(self.count)
+        self.text_entity.text = str(self.count)
 
     def is_won(self):
         if DEBUG:

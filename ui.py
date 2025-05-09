@@ -1,9 +1,10 @@
 from ursina import *
 from config import *
 import config
-from sat import indizio
+from sat import indizio, risolvi
 from game import Game
 
+from ursina.shaders import lit_with_shadows_shader
 
 class UI:
     def __init__(self):
@@ -21,7 +22,14 @@ class UI:
             visible=False
         )
 
-        self.flag_text = Text(text="Flag mode OFF", position=(-0.7, 0.45), scale=2, color=color.white, parent=camera.ui)
+        self.flag_text = Text(
+            text="Flag mode OFF", 
+            position=(-0.5, 0.4),
+            scale=2, 
+            color=color.white, 
+            parent=camera.ui
+        )
+        
         self.flag_text.visible = False
 
         self.hint_button = Button(
@@ -29,11 +37,21 @@ class UI:
             color = color.orange,
             parent = camera.ui,
             scale = .1,
-            x = -0.6,
-            y = -0.4
+            x = -0.4,
+            y = -0.3
+        )
+        
+        self.resolve_button = Button(
+            text = 'Risolvi',
+            color = color.azure,
+            parent = camera.ui,
+            scale = .1,
+            x = 0.4,
+            y = -0.3
         )
 
         self.hint_button.visible = False
+        self.resolve_button.visible = False
 
         self.selected_dimension = dim
         self.selected_difficulty = difficulty
@@ -184,15 +202,16 @@ class UI:
         start_button.on_click = self.start_game_handler
         exit_button.on_click = application.quit
 
-
     def start_game_handler(self):
         self.menu_panel.enabled = False
         self.game_panel.enabled = True
         self.flag_text.visible = True
         self.hint_button.visible = True
+        self.resolve_button.visible = True
         
         self.game = Game(self)
-        self.hint_button.on_click = lambda: indizio(self.game)
+        self.hint_button.on_click = self.hint_button_handler
+        self.resolve_button.on_click = self.resolve_button_handler
         self.game.start_game(self.selected_dimension, self.selected_difficulty)
 
 
@@ -274,10 +293,13 @@ class UI:
 
         for btn in self.dimension_buttons:
             btn.color = color.violet
-            print(f'Impostato {btn.text} a viola')
+            if DEBUG:
+                print(f'Impostato {btn.text} a viola')
 
         selected_button.color = color.magenta
-        print(f'Impostato {selected_button.text} a magenta')
+
+        if DEBUG:
+            print(f'Impostato {selected_button.text} a magenta')
 
 
 
@@ -295,4 +317,32 @@ class UI:
     def toggle_flag_mode(self):
         config.flag_mode = not config.flag_mode
         self.flag_text.text = "Flag mode ON" if config.flag_mode else "Flag mode OFF"
-        print(f'Modalità flag: {config.flag_mode}')
+        
+        if DEBUG:
+            print(f'Modalità flag: {config.flag_mode}')
+
+
+    def resolve_button_handler(self):
+        if DEBUG:
+            print('Risolvi button clicked')
+
+        indizi = risolvi(self.game)
+
+        if DEBUG:
+            print(f'Indizi trovati: {indizi}')
+            
+        # ???
+
+    
+    def hint_button_handler(self):
+        indizio_result = indizio(self.game)
+        if not indizio_result:
+            print("Nessun indizio certo disponibile.")
+            return
+
+        hint_type, cube_id_str = indizio_result
+        cube_id = tuple(map(int, cube_id_str.split('_')))
+        cube = config.cubes_dict[cube_id]
+
+        # Cambia il colore del cubo in base al tipo di indizio
+        cube.color = color.white if hint_type == 'mina' else color.blue

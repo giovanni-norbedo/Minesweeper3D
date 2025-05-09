@@ -41,11 +41,23 @@ def indizio(game):
         solver.pop()
 
     if certe_mine:
-        print(f'Indizio: {certe_mine[0]} è sicuramente una mina!')
+        if DEBUG:
+            print(f'Indizio: {certe_mine[0]} è sicuramente una mina!')
         return ('mina', certe_mine[0])
     elif sicuramente_sicuri:
-        print(f'Indizio: {sicuramente_sicuri[0]} è sicuramente sicuro.')
+        if DEBUG:
+            print(f'Indizio: {sicuramente_sicuri[0]} è sicuramente sicuro.')
         return ('sicuro', sicuramente_sicuri[0])
     else:
-        print("Nessun indizio certo disponibile.")
+        if DEBUG:
+            print("Nessun indizio certo disponibile.")
         return None
+
+
+def risolvi(game):
+    # Troviamo gli indizi
+    indizi = []
+    
+    # ???
+
+    return indizi
