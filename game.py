@@ -107,6 +107,8 @@ class Cube(Entity):
                     billboard=True,
                     color=color.white,
                 )
+                
+                self.is_revealed = True
             
             if DEBUG:
                 print(f'Clicked {self.id}, Mines around: {self.count}, Is mine: {self.is_mine}, Revealed {self.is_revealed}, count: {self.count}')
@@ -126,7 +128,8 @@ class Cube(Entity):
         not_revealed_cubes = self.game.get_not_revealed_cubes()
         if DEBUG:
             print(f'Not revealed cubes: {not_revealed_cubes}')
-        if len(not_revealed_cubes) == self.game.mines:
+
+        if len(not_revealed_cubes) == self.game.mines or (not_revealed_cubes == [] and self.is_mine):
             if DEBUG:
                 print('You won!')
 

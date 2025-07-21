@@ -220,6 +220,7 @@ class UI:
         self.game_over_panel.enabled = True
         self.flag_text.visible = False
         
+        self.game_over_text.text = 'Game Over!'
         self.game_over_text.visible = True
         
         
@@ -330,8 +331,17 @@ class UI:
 
         if DEBUG:
             print(f'Indizi trovati: {indizi}')
-            
-        # ???
+
+        for hint_type, cube_id_str in indizi:
+            cube_id = tuple(map(int, cube_id_str.split('_')))
+            cube = config.cubes_dict[cube_id]
+
+            # Cambia il colore del cubo in base al tipo di indizio
+            if hint_type == 'mina':
+                cube.color = color.white  # puoi cambiare in color.red o altro se preferisci
+            elif hint_type == 'sicuro':
+                cube.color = color.blue
+
 
     
     def hint_button_handler(self):

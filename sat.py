@@ -55,9 +55,46 @@ def indizio(game):
 
 
 def risolvi(game):
-    # Troviamo gli indizi
+    solver = Solver()
+    vars = {}
+
+    # Crea variabili per tutti i cubi non rivelati e non flaggati
+    for cube in config.cubes_dict.values():
+        if not cube.is_revealed and not cube.is_flagged:
+            vars[cube.id] = Bool(cube.id)
+
+    # Vincoli derivati dai cubi rivelati
+    for cube in config.cubes_dict.values():
+        if cube.is_revealed:
+            neighbors = cube.get_neighbors()
+            unknown_neighbors = [
+                vars[n.id] for n in neighbors if not n.is_revealed and not n.is_flagged
+            ]
+            if unknown_neighbors:
+                solver.add(Sum([If(var, 1, 0) for var in unknown_neighbors]) == cube.count)
+
+    # Trova tutti i cubi sicuramente sicuri o mine
     indizi = []
-    
-    # ???
+
+    for cube_id, var in vars.items():
+        solver.push()
+        solver.add(var == False)
+        if solver.check() == unsat:
+            indizi.append(('mina', cube_id))
+        solver.pop()
+
+        solver.push()
+        solver.add(var == True)
+        if solver.check() == unsat:
+            indizi.append(('sicuro', cube_id))
+        solver.pop()
+
+    if DEBUG:
+        if indizi:
+            print("Indizi trovati:")
+            for tipo, id in indizi:
+                print(f" - {id} è sicuramente {tipo}")
+        else:
+            print("Nessun indizio certo disponibile.")
 
     return indizi

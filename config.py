@@ -2,7 +2,7 @@ from ursina import *
 from random import randint
 
 # Variabili globali
-DEBUG = True
+DEBUG = False
 
 flag_mode = False
 cubes_dict = {}
