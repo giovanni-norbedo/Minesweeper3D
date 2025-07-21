@@ -1,7 +1,7 @@
 from ursina import *
 from config import *
 import config
-from sat import indizio, risolvi
+from sat import indizio, risolvi, tutto_tu
 from game import Game
 
 from ursina.shaders import lit_with_shadows_shader
@@ -49,9 +49,19 @@ class UI:
             x = 0.4,
             y = -0.3
         )
+        
+        self.tutto_tu_button = Button(
+            text = 'TUTTO TU!',
+            color = color.azure,
+            parent = camera.ui,
+            scale = (0.15, 0.1, 0.1),
+            x = 0.4,
+            y = 0.4
+        )
 
         self.hint_button.visible = False
         self.resolve_button.visible = False
+        self.tutto_tu_button.visible = False
 
         self.selected_dimension = dim
         self.selected_difficulty = difficulty
@@ -208,10 +218,12 @@ class UI:
         self.flag_text.visible = True
         self.hint_button.visible = True
         self.resolve_button.visible = True
+        self.tutto_tu_button.visible = True
         
         self.game = Game(self)
         self.hint_button.on_click = self.hint_button_handler
         self.resolve_button.on_click = self.resolve_button_handler
+        self.tutto_tu_button.on_click = self.tutto_tu_button_handler
         self.game.start_game(self.selected_dimension, self.selected_difficulty)
 
 
@@ -342,10 +354,9 @@ class UI:
             elif hint_type == 'sicuro':
                 cube.color = color.blue
 
-
     
     def hint_button_handler(self):
-        indizio_result = indizio(self.game)
+        indizio_result = indizio(self.game, False)
         if not indizio_result:
             print("Nessun indizio certo disponibile.")
             return
@@ -356,3 +367,7 @@ class UI:
 
         # Cambia il colore del cubo in base al tipo di indizio
         cube.color = color.white if hint_type == 'mina' else color.blue
+
+
+    def tutto_tu_button_handler(self):
+        tutto_tu(self.game)

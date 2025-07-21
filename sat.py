@@ -3,7 +3,7 @@ import config
 from config import *
 
 
-def indizio(game):
+def indizio(game, is_tutto):
     solver = Solver()
     vars = {}
 
@@ -24,14 +24,14 @@ def indizio(game):
                 solver.add(Sum([If(var, 1, 0) for var in unknown_neighbors]) == cube.count)
 
     # Troviamo i cubi sicuramente sicuri o sicuramente mine
-    certe_mine = []
+    sicuramente_mine = []
     sicuramente_sicuri = []
 
     for cube_id, var in vars.items():
         solver.push()
         solver.add(var == False)
         if solver.check() == unsat:
-            certe_mine.append(cube_id)
+            sicuramente_mine.append(cube_id)
         solver.pop()
 
         solver.push()
@@ -39,11 +39,16 @@ def indizio(game):
         if solver.check() == unsat:
             sicuramente_sicuri.append(cube_id)
         solver.pop()
+        
+    if is_tutto:
+        if sicuramente_sicuri:
+            return sicuramente_sicuri[0]
+        return None
 
-    if certe_mine:
+    if sicuramente_mine:
         if DEBUG:
-            print(f'Indizio: {certe_mine[0]} è sicuramente una mina!')
-        return ('mina', certe_mine[0])
+            print(f'Indizio: {sicuramente_mine[0]} è sicuramente una mina!')
+        return ('mina', sicuramente_mine[0])
     elif sicuramente_sicuri:
         if DEBUG:
             print(f'Indizio: {sicuramente_sicuri[0]} è sicuramente sicuro.')
@@ -98,3 +103,28 @@ def risolvi(game):
             print("Nessun indizio certo disponibile.")
 
     return indizi
+
+from time import sleep
+
+def tutto_tu(game):
+    config.flag_mode = False
+
+    def elimina_prossimo():
+        indizio_ora = indizio(game, True)
+        if not indizio_ora:
+            print("hell nah")
+            return
+
+        x, y, z = map(int, indizio_ora.split('_'))
+        cube = config.cubes_dict.get((x, y, z))
+        if not cube:
+            print("niente cube trovato")
+            return
+
+        print(f'eliminando cube: {cube.id}')
+        cube.check_onclick()    # qui il cubo viene rimosso
+        # ora invochiamo di nuovo questa stessa funzione fra 0.2 secondi
+        invoke(elimina_prossimo, delay=0.2)
+
+    # lancio la prima
+    elimina_prossimo()

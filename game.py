@@ -48,6 +48,42 @@ class Cube(Entity):
                         neighbors.append(cube)
         return neighbors
     
+    def check_onclick(self):
+        if self.is_flagged:
+                return
+            
+        if self.is_mine:
+            if DEBUG:
+                print('Game Over!')
+            self.game.game_over()
+
+                    
+        if self.count == 0:
+            self.game.flood_fill(
+                int(self.id.split('_')[0]),
+                int(self.id.split('_')[1]),
+                int(self.id.split('_')[2])
+            )
+        else:
+            destroy(self.text_entity)
+            self.text_entity = Text(
+                text=str(self.count),
+                position=self.position,
+                parent=self.game.pivot,
+                scale=side * 20,
+                billboard=True,
+                color=color.white,
+            )
+            
+            self.is_revealed = True
+        
+        if DEBUG:
+            print(f'Clicked {self.id}, Mines around: {self.count}, Is mine: {self.is_mine}, Revealed {self.is_revealed}, count: {self.count}')
+        
+        self.update_count_display()
+        self.disable()
+        self.is_won()
+        
     
     def on_click(self):
         
@@ -82,40 +118,7 @@ class Cube(Entity):
                     neighbor.update_count_display()
     
         else:
-            if self.is_flagged:
-                return
-            
-            if self.is_mine:
-                if DEBUG:
-                    print('Game Over!')
-                self.game.game_over()
-
-                        
-            if self.count == 0:
-                self.game.flood_fill(
-                    int(self.id.split('_')[0]),
-                    int(self.id.split('_')[1]),
-                    int(self.id.split('_')[2])
-                )
-            else:
-                destroy(self.text_entity)
-                self.text_entity = Text(
-                    text=str(self.count),
-                    position=self.position,
-                    parent=self.game.pivot,
-                    scale=side * 20,
-                    billboard=True,
-                    color=color.white,
-                )
-                
-                self.is_revealed = True
-            
-            if DEBUG:
-                print(f'Clicked {self.id}, Mines around: {self.count}, Is mine: {self.is_mine}, Revealed {self.is_revealed}, count: {self.count}')
-            
-            self.update_count_display()
-            self.disable()
-            self.is_won()
+            self.check_onclick()
 
 
     def update_count_display(self):

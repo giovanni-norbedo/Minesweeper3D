@@ -5,8 +5,6 @@ from ursina.shaders import lit_with_shadows_shader
 
 app = Ursina()
 
-# musica = Audio('musica.mp3', loop=True, autoplay=True)
-
 Entity.default_shader = lit_with_shadows_shader
 
 # Impostazioni finestra
