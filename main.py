@@ -3,6 +3,7 @@ from game import Game
 from ui import UI
 from ursina.shaders import lit_with_shadows_shader
 
+
 app = Ursina()
 
 Entity.default_shader = lit_with_shadows_shader
@@ -19,13 +20,16 @@ window.color = color.black
 ui = UI()
 game = Game(ui)
 
+
 def update():
     ui.update()
 
 def input(key):
     ui.input(key)
-    
+
+
 ambient_light = AmbientLight()
 ambient_light.color = color.rgb(100, 100, 100)
 
+# Inizializza
 app.run()

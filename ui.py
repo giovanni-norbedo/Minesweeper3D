@@ -1,10 +1,11 @@
 from ursina import *
+from ursina.shaders import lit_with_shadows_shader
+
 from config import *
 import config
 from sat import indizio, risolvi, tutto_tu
 from game import Game
 
-from ursina.shaders import lit_with_shadows_shader
 
 class UI:
     def __init__(self):
@@ -212,10 +213,12 @@ class UI:
         start_button.on_click = self.start_game_handler
         exit_button.on_click = application.quit
 
+
     def start_game_handler(self):
         self.menu_panel.enabled = False
         self.game_panel.enabled = True
         self.flag_text.visible = True
+        
         self.hint_button.visible = True
         self.resolve_button.visible = True
         self.tutto_tu_button.visible = True
@@ -232,9 +235,12 @@ class UI:
         self.game_over_panel.enabled = True
         self.flag_text.visible = False
         
+        self.hint_button.visible = False
+        self.resolve_button.visible = False
+        self.tutto_tu_button.visible = False
+        
         self.game_over_text.text = 'Game Over!'
         self.game_over_text.visible = True
-        
         
         self.restart_button = Button(
             text = 'Restart game',
@@ -258,8 +264,13 @@ class UI:
         self.game_over_panel.enabled = True
         self.flag_text.visible = False
         
+        self.hint_button.visible = False
+        self.resolve_button.visible = False
+        self.tutto_tu_button.visible = False
+        
         self.game_over_text.text = 'You won!'
         self.game_over_text.visible = True
+        
         
         self.restart_button = Button(
             text = 'Restart game',
@@ -365,7 +376,6 @@ class UI:
         cube_id = tuple(map(int, cube_id_str.split('_')))
         cube = config.cubes_dict[cube_id]
 
-        # Cambia il colore del cubo in base al tipo di indizio
         cube.color = color.white if hint_type == 'mina' else color.blue
 
 

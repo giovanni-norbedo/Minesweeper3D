@@ -1,9 +1,8 @@
-from ursina import *
 from random import randint
+from ursina import *
 
-# Variabili globali
+
 DEBUG = False
-
 flag_mode = False
 cubes_dict = {}
 
@@ -23,8 +22,6 @@ zoom_speed = 0.2
 min_zoom = 1
 max_zoom = 50
 
-LINE_LENGTH = 1000
-LINE_THICKNESS = 0.05
 
 # Variabili iniziali (possono essere modificate dal menu)
 dim = 5

@@ -2,7 +2,9 @@ import sys
 import math
 from random import randrange, uniform
 from functools import partial
+
 from ursina import *
+
 from config import *
 import config
 
@@ -48,9 +50,10 @@ class Cube(Entity):
                         neighbors.append(cube)
         return neighbors
     
+    
     def check_onclick(self):
         if self.is_flagged:
-                return
+            return
             
         if self.is_mine:
             if DEBUG:
@@ -86,7 +89,6 @@ class Cube(Entity):
         
     
     def on_click(self):
-        
         if DEBUG:
             print(f'Clicked on {self.id}, with count {self.count}')
 
@@ -98,7 +100,7 @@ class Cube(Entity):
             self.color = color.red if self.is_flagged else \
                 lerp(color.black, colors[rand_color], random.uniform(.3 , .9))
             
-            self.is_won() # qua non funziona
+            self.is_won()
             
             for neighbor in self.get_neighbors():
                 if self.is_flagged:
@@ -123,6 +125,7 @@ class Cube(Entity):
 
     def update_count_display(self):
         self.text_entity.text = str(self.count)
+    
 
     def is_won(self):
         if DEBUG:
@@ -172,6 +175,7 @@ class Game:
             camera.position = (self.center, 25, self.center)
         camera.look_at(self.pivot)
 
+        # Cubi
         for x in range(dim):
             for y in range(dim):
                 for z in range(dim):
@@ -186,7 +190,7 @@ class Game:
         if DEBUG:
             print(f'Created {len(config.cubes_dict)} cubes')
 
-        # Place mines
+        # Mine
         for _ in range(self.mines):
             while True:
                 x, y, z = randrange(dim), randrange(dim), randrange(dim)
@@ -194,9 +198,8 @@ class Game:
                     config.cubes_dict[(x,y,z)].is_mine = True
                     break
         
-        # Count mines around each cube
+        # Conta le mine attorno ad ogni cubo
         for cube in config.cubes_dict.values():
-            
             count = 0
             for i in range(-1, 2):
                 for j in range(-1, 2):
@@ -204,16 +207,13 @@ class Game:
                         if (i, j, k) == (0, 0, 0):
                             continue
                         neighbor = config.cubes_dict.get((int(cube.id.split('_')[0]) + i,
-                                                            int(cube.id.split('_')[1]) + j,
-                                                            int(cube.id.split('_')[2]) + k)
-                        )
+                                                          int(cube.id.split('_')[1]) + j,
+                                                          int(cube.id.split('_')[2]) + k
+                        ))
                         if neighbor and neighbor.is_mine:
                             count += 1
-            
             cube.count = count
             cube.text_entity.text = str(count)
-            
-            
             
             if DEBUG:
                 print(f'Cube {cube.id} has {cube.count} mines around it')
@@ -234,7 +234,6 @@ class Game:
             
             visited.add((cx, cy, cz))
             cube = config.cubes_dict.get((cx, cy, cz))
-            
             
             if not cube or cube.is_mine or cube.is_revealed:
                 continue

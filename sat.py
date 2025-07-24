@@ -1,9 +1,10 @@
 from z3 import *
+
 import config
 from config import *
 
 
-def indizio(game, is_tutto):
+def indizio(game, is_tutto_tu):
     solver = Solver()
     vars = {}
 
@@ -40,7 +41,7 @@ def indizio(game, is_tutto):
             sicuramente_sicuri.append(cube_id)
         solver.pop()
         
-    if is_tutto:
+    if is_tutto_tu:
         if sicuramente_sicuri:
             return sicuramente_sicuri[0]
         return None
@@ -104,7 +105,6 @@ def risolvi(game):
 
     return indizi
 
-from time import sleep
 
 def tutto_tu(game):
     config.flag_mode = False
@@ -112,18 +112,17 @@ def tutto_tu(game):
     def elimina_prossimo():
         indizio_ora = indizio(game, True)
         if not indizio_ora:
-            print("hell nah")
+            print("Impossibile risolvere automaticamente")
             return
 
         x, y, z = map(int, indizio_ora.split('_'))
         cube = config.cubes_dict.get((x, y, z))
         if not cube:
-            print("niente cube trovato")
+            print("Nessun cubo trovato")
             return
 
-        print(f'eliminando cube: {cube.id}')
-        cube.check_onclick()    # qui il cubo viene rimosso
-        # ora invochiamo di nuovo questa stessa funzione fra 0.2 secondi
+        print(f'Eliminando cubo: {cube.id}')
+        cube.check_onclick()
         invoke(elimina_prossimo, delay=0.2)
 
     # lancio la prima
