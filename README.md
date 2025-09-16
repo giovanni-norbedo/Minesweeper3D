@@ -1,5 +1,7 @@
 # Minesweeper3D
 
+<img src="m3d.png" alt="Screenshot di Minesweeper3D" width="600">
+
 **Autori:** Giovanni Norbedo e Marco Carmignano
 
 **Corso:** Computabilità, Complessità e Logica
